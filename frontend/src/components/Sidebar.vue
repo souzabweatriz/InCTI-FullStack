@@ -51,7 +51,7 @@ function navegar(rota) {
             >
                 <div class="brand-logo">
                     <img
-                        src="../assets/logo.png"
+                        src="../assets/icons/logo.png"
                         alt="InCTI"
                     >
                 </div>
@@ -67,7 +67,7 @@ function navegar(rota) {
                 class="brand-logo"
             >
                 <img
-                    src="../assets/logo.png"
+                    src="../assets/icons/logo.png"
                     alt="InCTI"
                 >
             </div>

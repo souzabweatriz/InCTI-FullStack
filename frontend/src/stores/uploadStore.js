@@ -2,56 +2,126 @@ import { defineStore } from 'pinia'
 import * as XLSX from 'xlsx'
 
 export const useUploadStore = defineStore('upload', {
-
+    // ==========================================
+    // STATE
+    // ==========================================
     state: () => ({
         arquivo: null,
+
         dadosOriginais: [],
+
         dadosTratados: [],
-        erro: '',
-        carregando: false
+
+        erros: [],
+
+        carregando: false,
+
+        validacaoRealizada: false,
+
+        erro: ''
     }),
 
+    // ==========================================
+    // GETTERS
+    // ==========================================
     getters: {
 
+        // Quantidade total de registros
         totalLinhas: (state) => state.dadosTratados.length,
 
+        // Quantidade de colunas
         totalColunas: (state) => {
             if (!state.dadosTratados.length) return 0
 
             return Object.keys(state.dadosTratados[0]).length
         },
 
+        // Nome das colunas
         colunas: (state) => {
             if (!state.dadosTratados.length) return []
 
             return Object.keys(state.dadosTratados[0])
         },
 
-        dadosValidos: (state) => {
-            return state.dadosTratados.filter((linha) => {
-                return Object.values(linha).some(
-                    (valor) => valor !== ''
-                )
-            })
+        // Quantidade de erros encontrados
+        quantidadeErros: (state) => state.erros.length,
+
+        // Quantidade de registros que possuem erro
+        quantidadeComErro: (state) => {
+            const linhasComErro = new Set(
+                state.erros.map((erro) => erro.linha)
+            )
+
+            return linhasComErro.size
         },
 
-        quantidadeValidos: (state) => {
-            return state.dadosTratados.filter((linha) => {
-                return Object.values(linha).some(
-                    (valor) => valor !== ''
-                )
-            }).length
-        }
+        // Quantidade de registros válidos
+        quantidadeValidos() {
+            return this.totalLinhas - this.quantidadeComErro
+        },
 
+        // Retorna somente os registros válidos
+        dadosValidos: (state) => {
+            const linhasComErro = new Set(
+                state.erros.map((erro) => erro.linha)
+            )
+
+            return state.dadosTratados.filter(
+                (_, index) => !linhasComErro.has(index + 2)
+            )
+        },
+
+        // Quantidade de campos vazios
+        quantidadeCamposVazios: (state) => {
+            return state.erros.filter(
+                (erro) => erro.tipo === 'Campo vazio'
+            ).length
+        },
+
+        // Quantidade de e-mails inválidos
+        quantidadeEmailsInvalidos: (state) => {
+            return state.erros.filter(
+                (erro) => erro.tipo === 'E-mail inválido'
+            ).length
+        },
+
+        // Quantidade de registros duplicados
+        quantidadeDuplicados: (state) => {
+            return state.erros.filter(
+                (erro) => erro.tipo === 'Registro duplicado'
+            ).length
+        },
+
+        // Quantidade de dados fora do padrão
+        quantidadeForaDoPadrao: (state) => {
+            return state.erros.filter(
+                (erro) => erro.tipo === 'Fora do padrão'
+            ).length
+        },
+
+        // Quantidade de espaços desnecessários
+        quantidadeEspacos: (state) => {
+            return state.erros.filter(
+                (erro) => erro.tipo === 'Espaços desnecessários'
+            ).length
+        }
     },
 
+    // ==========================================
+    // ACTIONS
+    // ==========================================
     actions: {
 
+        // ==========================================
+        // LER ARQUIVO
+        // ==========================================
         async lerArquivo(file) {
 
             this.erro = ''
+            this.erros = []
             this.dadosOriginais = []
             this.dadosTratados = []
+            this.validacaoRealizada = false
 
             if (!file) return
 
@@ -114,6 +184,8 @@ export const useUploadStore = defineStore('upload', {
 
                 this.tratarDados()
 
+                this.validarDados()
+
             } catch (error) {
 
                 console.error(error)
@@ -126,10 +198,12 @@ export const useUploadStore = defineStore('upload', {
             } finally {
 
                 this.carregando = false
-
             }
         },
 
+        // ==========================================
+        // TRATAR DADOS
+        // ==========================================
         tratarDados() {
 
             this.dadosTratados =
@@ -151,10 +225,10 @@ export const useUploadStore = defineStore('upload', {
 
                             novaLinha[chave] =
                                 valor
-
                         }
                     }
 
+                    // Padronização do segmento
                     if (
                         typeof novaLinha.segmento === 'string'
                     ) {
@@ -167,15 +241,18 @@ export const useUploadStore = defineStore('upload', {
                         const mapaSegmentos = {
 
                             'IND.': 'Indústria',
+
                             'INDUSTRIA': 'Indústria',
+
                             'INDÚSTRIA': 'Indústria',
 
                             'COMERCIO': 'Comércio',
+
                             'COMÉRCIO': 'Comércio',
 
                             'SERVICOS': 'Serviços',
-                            'SERVIÇOS': 'Serviços'
 
+                            'SERVIÇOS': 'Serviços'
                         }
 
                         novaLinha.segmento =
@@ -183,6 +260,7 @@ export const useUploadStore = defineStore('upload', {
                             novaLinha.segmento
                     }
 
+                    // Padronização do nível do cliente
                     if (
                         typeof novaLinha.nivel_cliente === 'string'
                     ) {
@@ -196,16 +274,241 @@ export const useUploadStore = defineStore('upload', {
                 })
         },
 
+        // ==========================================
+        // VALIDAR DADOS
+        // ==========================================
+        validarDados() {
+
+            this.erros = []
+
+            const colunas = this.colunas
+
+            this.dadosTratados.forEach(
+                (linha, index) => {
+
+                    // Excel começa na linha 2
+                    // porque a linha 1 é o cabeçalho
+                    const numeroLinha = index + 2
+
+                    // ----------------------------------
+                    // CAMPOS VAZIOS
+                    // ----------------------------------
+                    Object.entries(linha).forEach(
+                        ([campo, valor]) => {
+
+                            if (
+                                valor === '' ||
+                                valor === null ||
+                                valor === undefined
+                            ) {
+
+                                this.erros.push({
+
+                                    linha: numeroLinha,
+
+                                    campo: campo,
+
+                                    tipo: 'Campo vazio',
+
+                                    descricao:
+                                        `O campo "${campo}" está vazio.`
+                                })
+                            }
+                        }
+                    )
+
+                    // ----------------------------------
+                    // E-MAIL
+                    // ----------------------------------
+                    const campoEmail =
+                        colunas.find(
+                            (coluna) =>
+                                coluna.toLowerCase()
+                                    .includes('email') ||
+                                coluna.toLowerCase()
+                                    .includes('e-mail')
+                        )
+
+                    if (campoEmail) {
+
+                        const email =
+                            String(
+                                linha[campoEmail] || ''
+                            ).trim()
+
+                        if (email !== '') {
+
+                            const emailValido =
+                                /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                                    .test(email)
+
+                            if (!emailValido) {
+
+                                this.erros.push({
+
+                                    linha: numeroLinha,
+
+                                    campo: campoEmail,
+
+                                    tipo: 'E-mail inválido',
+
+                                    descricao:
+                                        `O e-mail "${email}" não possui um formato válido.`
+                                })
+                            }
+                        }
+                    }
+
+                    // ----------------------------------
+                    // ESPAÇOS DESNECESSÁRIOS
+                    // ----------------------------------
+                    Object.entries(
+                        this.dadosOriginais[index] || {}
+                    ).forEach(
+                        ([campo, valor]) => {
+
+                            if (
+                                typeof valor === 'string' &&
+                                (
+                                    valor !== valor.trim() ||
+                                    /\s{2,}/.test(valor)
+                                )
+                            ) {
+
+                                this.erros.push({
+
+                                    linha: numeroLinha,
+
+                                    campo: campo,
+
+                                    tipo: 'Espaços desnecessários',
+
+                                    descricao:
+                                        `O campo "${campo}" possui espaços desnecessários.`
+                                })
+                            }
+                        }
+                    )
+
+                    // ----------------------------------
+                    // DADOS FORA DO PADRÃO
+                    // ----------------------------------
+
+                    // Segmento
+                    if (
+                        linha.segmento &&
+                        ![
+                            'Indústria',
+                            'Comércio',
+                            'Serviços'
+                        ].includes(linha.segmento)
+                    ) {
+
+                        this.erros.push({
+
+                            linha: numeroLinha,
+
+                            campo: 'segmento',
+
+                            tipo: 'Fora do padrão',
+
+                            descricao:
+                                'O segmento informado não está dentro dos padrões esperados.'
+                        })
+                    }
+
+                    // Nível do cliente
+                    if (
+                        linha.nivel_cliente &&
+                        ![
+                            'A',
+                            'B',
+                            'C'
+                        ].includes(
+                            String(
+                                linha.nivel_cliente
+                            ).toUpperCase()
+                        )
+                    ) {
+
+                        this.erros.push({
+
+                            linha: numeroLinha,
+
+                            campo: 'nivel_cliente',
+
+                            tipo: 'Fora do padrão',
+
+                            descricao:
+                                'O nível do cliente deve ser A, B ou C.'
+                        })
+                    }
+                }
+            )
+
+            // ----------------------------------
+            // REGISTROS DUPLICADOS
+            // ----------------------------------
+
+            const registros = new Map()
+
+            this.dadosTratados.forEach(
+                (linha, index) => {
+
+                    const numeroLinha = index + 2
+
+                    // Transformamos a linha inteira
+                    // em uma string para comparação
+                    const identificador =
+                        JSON.stringify(linha)
+
+                    if (
+                        registros.has(identificador)
+                    ) {
+
+                        this.erros.push({
+
+                            linha: numeroLinha,
+
+                            campo: 'Registro',
+
+                            tipo: 'Registro duplicado',
+
+                            descricao:
+                                `O registro é duplicado da linha ${registros.get(identificador)}.`
+                        })
+
+                    } else {
+
+                        registros.set(
+                            identificador,
+                            numeroLinha
+                        )
+                    }
+                }
+            )
+
+            this.validacaoRealizada = true
+        },
+
+        // ==========================================
+        // LIMPAR
+        // ==========================================
         limpar() {
 
             this.arquivo = null
+
             this.dadosOriginais = []
+
             this.dadosTratados = []
+
+            this.erros = []
+
             this.erro = ''
+
             this.carregando = false
 
+            this.validacaoRealizada = false
         }
-
     }
-
 })
