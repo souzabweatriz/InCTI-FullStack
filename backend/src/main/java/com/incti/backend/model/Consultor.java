@@ -3,6 +3,8 @@ package com.incti.backend.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,6 +34,7 @@ public class Consultor {
     private String senha;
 
     @OneToMany(mappedBy = "consultor")
+    @JsonIgnore
     private List<Cliente> clientes = new ArrayList<>();
 
     public Consultor() {

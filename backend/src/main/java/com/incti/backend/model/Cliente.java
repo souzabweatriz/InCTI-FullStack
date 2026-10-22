@@ -1,5 +1,7 @@
 package com.incti.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,6 +29,7 @@ public class Cliente {
 
     @ManyToOne
     @JoinColumn(name = "consultor_id")
+    @JsonIgnoreProperties("clientes")
     private Consultor consultor;
 
     public Cliente() {

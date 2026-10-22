@@ -2,6 +2,8 @@ package com.incti.backend.model;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,6 +29,7 @@ public class Contrato {
 
     @ManyToOne
     @JoinColumn(name = "servico_id")
+    @JsonIgnoreProperties("contratos")
     private Servico servico;
 
     public Contrato() {
