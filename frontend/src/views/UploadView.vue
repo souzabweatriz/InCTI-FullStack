@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUploadStore } from '../stores/uploadStore'
 
 const store = useUploadStore()
+const router = useRouter()
 
 const fileInput = ref(null)
 const isDragging = ref(false)
@@ -55,6 +57,15 @@ function formatarTamanho(bytes) {
     }
 
     return `${(kb / 1024).toFixed(1)} MB`
+}
+
+async function enviarParaAnalise() {
+    try {
+        await store.enviarParaAnalise()
+        await router.push({ name: 'dashboard-resumo' })
+    } catch {
+        // A mensagem detalhada já é exibida pelo estado da store.
+    }
 }
 </script>
 
@@ -405,6 +416,32 @@ function formatarTamanho(bytes) {
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                <div
+                    v-if="store.dadosValidos.length"
+                    class="analysis-action glass-panel reveal"
+                    style="--delay: 260ms"
+                >
+                    <div>
+                        <span class="eyebrow">Próximo passo</span>
+                        <h2>Gerar análise inteligente</h2>
+                        <p>
+                            Envie {{ store.dadosValidos.length }} registros válidos
+                            para calcular indicadores e insights.
+                        </p>
+                        <p v-if="store.erroEnvio" class="send-error">
+                            {{ store.erroEnvio }}
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        class="send-button"
+                        :disabled="store.enviando"
+                        @click="enviarParaAnalise"
+                    >
+                        {{ store.enviando ? 'Processando...' : 'Enviar para análise' }}
+                    </button>
                 </div>
             </div>
         </section>
@@ -1055,6 +1092,52 @@ function formatarTamanho(bytes) {
     margin-top: 1.5rem;
 }
 
+.analysis-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    padding: 1.5rem;
+}
+
+.analysis-action h2 {
+    margin: .35rem 0;
+}
+
+.analysis-action p {
+    margin: 0;
+    color: #a4aaa8;
+}
+
+.send-button {
+    border: 0;
+    border-radius: .75rem;
+    background: #ffbe55;
+    color: #17110a;
+    cursor: pointer;
+    font-weight: 700;
+    padding: .85rem 1.1rem;
+    white-space: nowrap;
+}
+
+.send-button:disabled {
+    cursor: wait;
+    opacity: .6;
+}
+
+.send-error {
+    color: #ff8a8a !important;
+    margin-top: .5rem !important;
+}
+
+@media (max-width: 640px) {
+    .analysis-action {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}
+
 .preview-header {
     width: 100%;
     padding: 1.5rem 2rem;
@@ -1350,4 +1433,3 @@ tbody tr:hover td {
     }
 }
 </style>
-

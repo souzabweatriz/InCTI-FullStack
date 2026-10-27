@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import * as XLSX from 'xlsx'
+import api from '../services/api'
 
 export const useUploadStore = defineStore('upload', {
     // ==========================================
@@ -18,7 +19,11 @@ export const useUploadStore = defineStore('upload', {
 
         validacaoRealizada: false,
 
-        erro: ''
+        erro: '',
+        enviando: false,
+        loteId: null,
+        dashboard: null,
+        erroEnvio: ''
     }),
 
     // ==========================================
@@ -199,6 +204,39 @@ export const useUploadStore = defineStore('upload', {
 
                 this.carregando = false
             }
+        },
+
+        async enviarParaAnalise() {
+            if (!this.dadosValidos.length || this.enviando) return
+
+            this.enviando = true
+            this.erroEnvio = ''
+
+            try {
+                const resposta = await api('/analytics/lotes', {
+                    method: 'POST',
+                    body: JSON.stringify({ linhas: this.dadosValidos })
+                })
+                this.loteId = resposta.loteId
+                this.dashboard = await api(
+                    `/analytics/dashboard?loteId=${this.loteId}`
+                )
+                return this.loteId
+            } catch (error) {
+                this.erroEnvio = error.message
+                throw error
+            } finally {
+                this.enviando = false
+            }
+        },
+
+        async carregarDashboard(loteId = this.loteId) {
+            if (!loteId) return null
+            this.dashboard = await api(
+                `/analytics/dashboard?loteId=${loteId}`
+            )
+            this.loteId = loteId
+            return this.dashboard
         },
 
         // ==========================================
@@ -509,6 +547,9 @@ export const useUploadStore = defineStore('upload', {
             this.carregando = false
 
             this.validacaoRealizada = false
+            this.loteId = null
+            this.dashboard = null
+            this.erroEnvio = ''
         }
     }
 })

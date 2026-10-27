@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../services/api'
 
@@ -14,6 +14,26 @@ const erro = ref('')
 const sucesso = ref('')
 const mostrarSenha = ref(false)
 const mostrarConfirmacao = ref(false)
+const senhaEmEdicao = ref(false)
+
+const requisitosSenha = [
+    { texto: 'Pelo menos 8 caracteres', valida: (valor) => valor.length >= 8 },
+    { texto: 'Uma letra maiúscula', valida: (valor) => /[A-Z]/.test(valor) },
+    { texto: 'Uma letra minúscula', valida: (valor) => /[a-z]/.test(valor) },
+    { texto: 'Um número', valida: (valor) => /\d/.test(valor) },
+    { texto: 'Um caractere especial', valida: (valor) => /[^A-Za-z0-9]/.test(valor) }
+]
+
+function senhaValida() {
+    return requisitosSenha.every((requisito) => requisito.valida(senha.value))
+}
+
+const requisitosSenhaStatus = computed(() =>
+    requisitosSenha.map((requisito) => ({
+        ...requisito,
+        atendido: requisito.valida(senha.value)
+    }))
+)
 
 const frases = [
     'novas possibilidades.',
@@ -93,6 +113,11 @@ async function cadastrar() {
 
     if (!senha.value) {
         erro.value = 'Informe uma senha.'
+        return
+    }
+
+    if (!senhaValida()) {
+        erro.value = 'A senha ainda não atende a todos os requisitos.'
         return
     }
 
@@ -221,7 +246,8 @@ async function cadastrar() {
                                 </span>
 
                                 <input id="senha" v-model="senha" :type="mostrarSenha ? 'text' : 'password'"
-                                    placeholder="Digite sua senha" autocomplete="new-password" required />
+                                    placeholder="Digite sua senha" autocomplete="new-password" required
+                                    @focus="senhaEmEdicao = true" />
 
                                 <button type="button" class="toggle-password"
                                     :aria-label="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'"
@@ -238,6 +264,20 @@ async function cadastrar() {
                                     </svg>
                                 </button>
                             </div>
+
+                            <ul v-if="senhaEmEdicao" class="password-requirements"
+                                aria-label="Requisitos da senha">
+                                <li
+                                    v-for="requisito in requisitosSenhaStatus"
+                                    :key="requisito.texto"
+                                    :class="{ valid: requisito.atendido }"
+                                >
+                                    <span class="requirement-icon">
+                                        {{ requisito.atendido ? '✓' : '○' }}
+                                    </span>
+                                    {{ requisito.texto }}
+                                </li>
+                            </ul>
                         </div>
 
                         <div class="form-field">
@@ -644,6 +684,50 @@ async function cadastrar() {
     background: transparent;
     color: #a29ba9;
     cursor: pointer;
+}
+
+.password-requirements {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px 12px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+    color: #8d8792;
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.password-requirements li {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.password-requirements li.valid {
+    color: #237541;
+}
+
+.requirement-icon {
+    display: inline-flex;
+    width: 14px;
+    height: 14px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #b4aeb9;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.password-requirements li.valid .requirement-icon {
+    color: #237541;
+}
+
+@media (max-width: 520px) {
+    .password-requirements {
+        grid-template-columns: 1fr;
+    }
 }
 
 .message {

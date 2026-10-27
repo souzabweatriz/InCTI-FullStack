@@ -5,6 +5,8 @@ $env:DB_PORT = "5432"
 $env:DB_NAME = "postgres"
 $env:DB_USER = "incti"
 $env:DB_SSLMODE = "require"
+$env:ETL_URL = "http://localhost:8000"
+$env:ETL_KEY = "incti-etl-chave-local-2026"
 
 $bytes = New-Object byte[] 32
 [System.Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
@@ -25,4 +27,6 @@ try {
 finally {
     Remove-Item Env:DB_PASSWORD -ErrorAction SilentlyContinue
     Remove-Item Env:JWT_SECRET -ErrorAction SilentlyContinue
+    Remove-Item Env:ETL_URL -ErrorAction SilentlyContinue
+    Remove-Item Env:ETL_KEY -ErrorAction SilentlyContinue
 }

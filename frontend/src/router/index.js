@@ -6,6 +6,8 @@ import Cadastro from '../views/CadastroView.vue'
 import Dashboard from '../views/DashboardView.vue'
 import Upload from '../views/UploadView.vue'
 import Relatorio from '../views/RelatorioView.vue'
+import DashboardResumo from '../views/DashboardResumoView.vue'
+import Perfil from '../views/PerfilView.vue'
 
 const routes = [
   {
@@ -29,6 +31,13 @@ const routes = [
   },
 
   {
+    path: '/perfil',
+    name: 'perfil',
+    component: Perfil,
+    meta: { requiresAuth: true }
+  },
+
+  {
     path: '/upload',
     redirect: { name: 'upload' }
   },
@@ -36,10 +45,16 @@ const routes = [
   {
     path: '/dashboard',
     component: Dashboard,
-    redirect: { name: 'upload' },
+    redirect: { name: 'dashboard-resumo' },
     meta: { requiresAuth: true },
 
     children: [
+      {
+        path: '',
+        name: 'dashboard-resumo',
+        component: DashboardResumo
+      },
+
       {
         path: 'upload',
         name: 'upload',
@@ -61,11 +76,15 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
-  const autenticado = localStorage.getItem('cti_logado') === 'true'
-    && Boolean(localStorage.getItem('cti_token'))
+  const autenticado =
+    localStorage.getItem('cti_logado') === 'true' &&
+    Boolean(localStorage.getItem('cti_token'))
 
   if (to.meta.requiresAuth && !autenticado) {
-    return { name: 'login', query: { redirect: to.fullPath } }
+    return {
+      name: 'login',
+      query: { redirect: to.fullPath }
+    }
   }
 
   return true
