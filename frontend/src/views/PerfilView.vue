@@ -172,28 +172,6 @@ function sair() {
 
 <template>
     <main class="perfil-page">
-        <header class="topbar">
-            <RouterLink to="/dashboard" class="brand">
-                <span class="brand-symbol">C</span>
-
-                <span class="brand-name">
-                    InCTI <strong>Insights</strong>
-                </span>
-            </RouterLink>
-
-            <nav class="topbar-actions">
-                <RouterLink to="/dashboard" class="back-link">
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M15 18l-6-6 6-6" />
-                    </svg>
-                    Dashboard
-                </RouterLink>
-
-                <button class="logout-button" type="button" @click="sair">
-                    Sair
-                </button>
-            </nav>
-        </header>
 
         <section class="page-content">
             <div class="page-heading">
@@ -203,12 +181,21 @@ function sair() {
                     <p>Personalize suas informações e deixe seu perfil com a sua cara.</p>
                 </div>
 
-                <button v-if="!editando" class="edit-button" type="button" @click="iniciarEdicao">
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="m15 5 4 4M4 20l4.5-1 11-11a2.1 2.1 0 0 0-3-3l-11 11L4 20Z" />
-                    </svg>
-                    Editar perfil
-                </button>
+                <div class="heading-actions">
+                    <button v-if="!editando" class="edit-button" type="button" @click="iniciarEdicao">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="m15 5 4 4M4 20l4.5-1 11-11a2.1 2.1 0 0 0-3-3l-11 11L4 20Z" />
+                        </svg>
+                        Editar perfil
+                    </button>
+
+                    <button class="logout-button" type="button" @click="sair">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3M14 17l5-5-5-5M19 12H8" />
+                        </svg>
+                        Sair
+                    </button>
+                </div>
             </div>
 
             <section class="profile-layout">
@@ -379,10 +366,6 @@ function sair() {
                 </section>
             </section>
 
-            <footer class="page-footer">
-                <span>InCTI Insights</span>
-                <span>Transformando dados em conhecimento.</span>
-            </footer>
         </section>
     </main>
 </template>
@@ -394,82 +377,30 @@ function sair() {
 
 .perfil-page {
     min-height: 100vh;
-    background: #f7f5f8;
     color: #352633;
     font-family: Inter, "Segoe UI", Arial, sans-serif;
 }
 
-.topbar {
-    height: 68px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    padding: 0 4%;
-    background: #fff;
-    border-bottom: 1px solid #eee5ec;
-}
 
-.brand {
-    display: inline-flex;
-    align-items: center;
+
+
+
+
+
+
+
+
+.heading-actions {
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
-    color: #382331;
-    text-decoration: none;
-}
-
-.brand-symbol {
-    width: 37px;
-    height: 37px;
-    display: grid;
-    place-items: center;
-    border-radius: 11px;
-    background: linear-gradient(145deg, #702b4c, #c73a68);
-    color: white;
-    font-size: 19px;
-    font-weight: 800;
-}
-
-.brand-name {
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: -0.4px;
-}
-
-.brand-name strong {
-    color: #b43b68;
-}
-
-.topbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    color: #756572;
-    font-size: 12px;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.back-link:hover {
-    color: #b43b68;
-}
-
-.back-link svg {
-    width: 17px;
-    height: 17px;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
 }
 
 .logout-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
     padding: 9px 15px;
     border: 1px solid #eadce5;
     border-radius: 8px;
@@ -481,16 +412,25 @@ function sair() {
     cursor: pointer;
 }
 
+.logout-button svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
 .logout-button:hover {
     background: #fff5f9;
     border-color: #c96b8e;
 }
 
 .page-content {
-    width: calc(100% - 48px);
+    width: 100%;
     max-width: 1180px;
     margin: 0 auto;
-    padding: 28px 0 22px;
+    padding: 1rem 0 22px;
 }
 
 .page-heading {
@@ -979,19 +919,7 @@ function sair() {
     transform: translateY(-1px);
 }
 
-.page-footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 20px 2px 0;
-    color: #a095a1;
-    font-size: 10px;
-}
 
-.page-footer span:first-child {
-    color: #806b7d;
-    font-weight: 800;
-}
 
 @media (max-width: 850px) {
     .profile-layout {
@@ -1019,35 +947,29 @@ function sair() {
 }
 
 @media (max-width: 620px) {
-    .topbar {
-        height: 62px;
-        padding: 0 16px;
-    }
 
-    .brand-name {
-        font-size: 15px;
-    }
 
-    .topbar-actions {
-        gap: 10px;
-    }
 
-    .back-link {
-        font-size: 0;
-    }
 
-    .back-link svg {
-        width: 21px;
-        height: 21px;
-    }
 
     .logout-button {
         padding: 8px 11px;
     }
 
     .page-content {
-        width: calc(100% - 28px);
-        padding-top: 22px;
+        padding-top: 0.5rem;
+    }
+
+    .page-heading {
+        flex-direction: column;
+    }
+
+    .heading-actions {
+        width: 100%;
+    }
+
+    .heading-actions > * {
+        flex: 1;
     }
 
     .page-heading {
@@ -1111,10 +1033,6 @@ function sair() {
         padding: 19px 16px;
     }
 
-    .page-footer {
-        flex-direction: column;
-        gap: 6px;
-    }
 }
 
 @media (prefers-reduced-motion: reduce) {
