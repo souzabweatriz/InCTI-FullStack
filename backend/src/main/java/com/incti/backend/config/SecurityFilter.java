@@ -32,6 +32,16 @@ public class SecurityFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return "OPTIONS".equalsIgnoreCase(request.getMethod())
+                || ("/auth/login".equals(path)
+                    && "POST".equalsIgnoreCase(request.getMethod()))
+                || ("/auth/register".equals(path)
+                    && "POST".equalsIgnoreCase(request.getMethod()));
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,

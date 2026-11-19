@@ -20,7 +20,7 @@ public class UsuarioService {
     public Usuario cadastrar(String nomeCompleto, String email, String senha) {
 
         if (usuarioRepository.existsByEmail(email)) {
-            throw new RuntimeException("E-mail já cadastrado");
+            throw new IllegalStateException("E-mail já cadastrado");
         }
 
         if (!senha.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$")) {

@@ -49,7 +49,7 @@ def marcar_erro(engine: Engine, lote_id: int, mensagem: str) -> None:
                 "UPDATE upload_lote "
                 "SET status = 'ERRO', mensagem = :m WHERE id = :id"
             ),
-            {"id": lote_id, "m": mensagem[:480]},
+            {"id": lote_id, "m": mensagem[:255]},
         )
 
 
@@ -60,6 +60,7 @@ def gravar_resultado(
     estatisticas: dict,
     recebidas: int,
     rejeitadas_etl: int = 0,
+    arquivo_nome: str = "planilha",
 ) -> None:
     """Grava clientes, contratos e estatísticas do lote."""
 
@@ -70,7 +71,12 @@ def gravar_resultado(
         )
 
         for _, linha in tratado.iterrows():
-            cliente = linha.to_dict()
+            # NaN/NaT do pandas não podem ir para colunas de texto/data.
+            cliente = {
+                chave: (None if not isinstance(valor, list) and pd.isna(valor)
+                        else valor)
+                for chave, valor in linha.to_dict().items()
+            }
 
             cliente_id = conn.execute(
                 text("""
@@ -99,7 +105,7 @@ def gravar_resultado(
                 },
             ).scalar_one()
 
-            for servico in cliente.get("servicos", []):
+            for servico in cliente.get("servicos") or []:
                 conn.execute(
                     text("""
                         INSERT INTO contrato (
@@ -139,6 +145,7 @@ def gravar_resultado(
             text("""
                 UPDATE upload_lote
                 SET status = 'PROCESSADO',
+                    arquivo_nome = :arquivo_nome,
                     total_linhas = :recebidas,
                     linhas_validas = :validas,
                     linhas_invalidas = :invalidas,
@@ -147,6 +154,7 @@ def gravar_resultado(
             """),
             {
                 "id": lote_id,
+                "arquivo_nome": arquivo_nome[:255],
                 "recebidas": recebidas,
                 "validas": len(tratado),
                 "invalidas": recebidas - len(tratado),

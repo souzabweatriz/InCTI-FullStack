@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import * as XLSX from 'xlsx'
-import api from '../services/api'
+import api, { dashboardService } from '../services/api'
+
+const TIPOS_BLOQUEANTES = ['Campo vazio', 'E-mail inválido', 'Registro duplicado']
 
 export const useUploadStore = defineStore('upload', {
     // ==========================================
@@ -65,14 +67,28 @@ export const useUploadStore = defineStore('upload', {
             return this.totalLinhas - this.quantidadeComErro
         },
 
-        // Retorna somente os registros válidos
-        dadosValidos: (state) => {
-            const linhasComErro = new Set(
-                state.erros.map((erro) => erro.linha)
-            )
+        // Linhas que não podem ir para o ETL. Espaços extras e
+        // "fora do padrão" são só avisos: o front e o Python já corrigem.
+        linhasBloqueadas: (state) => new Set(
+            state.erros
+                .filter((erro) => TIPOS_BLOQUEANTES.includes(erro.tipo))
+                .map((erro) => erro.linha)
+        ),
 
-            return state.dadosTratados.filter(
-                (_, index) => !linhasComErro.has(index + 2)
+        // Linhas que têm apenas avisos (são enviadas mesmo assim)
+        quantidadeComAviso() {
+            const comAviso = new Set(
+                this.erros
+                    .filter((erro) => !this.linhasBloqueadas.has(erro.linha))
+                    .map((erro) => erro.linha)
+            )
+            return comAviso.size
+        },
+
+        // Retorna os registros que serão enviados para análise
+        dadosValidos() {
+            return this.dadosTratados.filter(
+                (_, index) => !this.linhasBloqueadas.has(index + 2)
             )
         },
 
@@ -215,12 +231,18 @@ export const useUploadStore = defineStore('upload', {
             try {
                 const resposta = await api('/analytics/lotes', {
                     method: 'POST',
-                    body: JSON.stringify({ linhas: this.dadosValidos })
+                    body: JSON.stringify({
+                        arquivoNome: this.arquivo?.name || 'planilha',
+                        recebidas: this.dadosTratados.length,
+                        // precisa bater: recebidas = linhas enviadas + invalidas
+                        invalidas: this.linhasBloqueadas.size,
+                        comAviso: this.quantidadeComAviso,
+                        linhas: this.dadosValidos
+                    })
                 })
                 this.loteId = resposta.loteId
-                this.dashboard = await api(
-                    `/analytics/dashboard?loteId=${this.loteId}`
-                )
+                const dashboard = await dashboardService.obter(this.loteId)
+                this.dashboard = dashboard.estatisticas
                 return this.loteId
             } catch (error) {
                 this.erroEnvio = error.message
@@ -232,9 +254,8 @@ export const useUploadStore = defineStore('upload', {
 
         async carregarDashboard(loteId = this.loteId) {
             if (!loteId) return null
-            this.dashboard = await api(
-                `/analytics/dashboard?loteId=${loteId}`
-            )
+            const dashboard = await dashboardService.obter(loteId)
+            this.dashboard = dashboard.estatisticas
             this.loteId = loteId
             return this.dashboard
         },
@@ -254,7 +275,19 @@ export const useUploadStore = defineStore('upload', {
                         of Object.entries(linha)
                     ) {
 
-                        if (typeof valor === 'string') {
+                        if (
+                            chave === 'data_contratacao' &&
+                            typeof valor === 'number' &&
+                            valor > 1 &&
+                            valor < 60000
+                        ) {
+                            const data = XLSX.SSF.parse_date_code(valor)
+                            novaLinha[chave] = [
+                                data.y,
+                                String(data.m).padStart(2, '0'),
+                                String(data.d).padStart(2, '0')
+                            ].join('-')
+                        } else if (typeof valor === 'string') {
 
                             novaLinha[chave] =
                                 valor.trim()
@@ -331,29 +364,29 @@ export const useUploadStore = defineStore('upload', {
                     // ----------------------------------
                     // CAMPOS VAZIOS
                     // ----------------------------------
-                    Object.entries(linha).forEach(
-                        ([campo, valor]) => {
+                    const camposObrigatorios = [
+                        'codigo_cliente',
+                        'nome_cliente',
+                        'faturamento_anual'
+                    ]
 
-                            if (
-                                valor === '' ||
-                                valor === null ||
-                                valor === undefined
-                            ) {
+                    camposObrigatorios.forEach((campo) => {
+                        const valor = linha[campo]
 
-                                this.erros.push({
-
-                                    linha: numeroLinha,
-
-                                    campo: campo,
-
-                                    tipo: 'Campo vazio',
-
-                                    descricao:
-                                        `O campo "${campo}" está vazio.`
-                                })
-                            }
+                        if (
+                            valor === '' ||
+                            valor === null ||
+                            valor === undefined
+                        ) {
+                            this.erros.push({
+                                linha: numeroLinha,
+                                campo,
+                                tipo: 'Campo vazio',
+                                descricao:
+                                    `O campo obrigatório "${campo}" está vazio.`
+                            })
                         }
-                    )
+                    })
 
                     // ----------------------------------
                     // E-MAIL

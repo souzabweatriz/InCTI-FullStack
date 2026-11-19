@@ -7,18 +7,22 @@ import os
 import pandas as pd
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
+from sqlalchemy import text
 
 from analise import calcular
 from banco import criar_engine
 from limpeza import tratar
 from main import processar_lote
 
-app = FastAPI(title="InCTI Analytics", version="1.0.0")
+app = FastAPI(title="CTI Insights — ETL em Python", version="1.0.0")
 
 
-class EtlRequest(BaseModel):
+class Pedido(BaseModel):
+    arquivoNome: str = "planilha"
     loteId: int = Field(gt=0)
     recebidas: int = Field(ge=0)
+    invalidas: int = Field(default=0, ge=0)
+    comAviso: int = Field(default=0, ge=0)
     linhas: list[dict] = Field(default_factory=list)
 
 
@@ -35,28 +39,26 @@ def saude() -> dict[str, str]:
 
 @app.post("/etl")
 def executar_etl(
-    pedido: EtlRequest,
+    pedido: Pedido,
     x_etl_key: str | None = Header(default=None, alias="X-ETL-Key"),
 ) -> dict[str, object]:
     _validar_chave(x_etl_key)
-    if pedido.recebidas != len(pedido.linhas):
+    if pedido.recebidas != len(pedido.linhas) + pedido.invalidas:
         raise HTTPException(
             status_code=422,
-            detail="recebidas deve corresponder à quantidade de linhas.",
+            detail="recebidas deve corresponder às linhas válidas e inválidas.",
         )
 
-    sucesso = processar_lote(
+    erro = processar_lote(
         criar_engine(),
         pedido.loteId,
         pedido.linhas,
         pedido.recebidas,
+        pedido.arquivoNome,
     )
-    if not sucesso:
-        raise HTTPException(
-            status_code=409,
-            detail="O lote não pôde ser processado.",
-        )
-    return {"status": "PROCESSADO", "loteId": pedido.loteId}
+    if erro:
+        raise HTTPException(status_code=409, detail=erro)
+    return {"ok": True, "status": "PROCESSADO", "loteId": pedido.loteId}
 
 
 @app.post("/testar")
@@ -72,3 +74,18 @@ def testar(
             detail="A lista não contém clientes válidos.",
         )
     return calcular(resultado, len(linhas))
+
+
+@app.get("/lotes")
+def listar_lotes(
+    x_etl_key: str | None = Header(default=None, alias="X-ETL-Key"),
+) -> list[dict[str, object]]:
+    _validar_chave(x_etl_key)
+    with criar_engine().connect() as conn:
+        linhas = conn.execute(
+            text(
+                "SELECT id, arquivo_nome, status "
+                "FROM upload_lote ORDER BY id DESC"
+            )
+        ).mappings().all()
+    return [dict(linha) for linha in linhas]

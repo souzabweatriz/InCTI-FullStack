@@ -2,8 +2,10 @@ package com.incti.backend.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,7 @@ import com.incti.backend.service.TokenService;
 import com.incti.backend.service.UsuarioService;
 
 import jakarta.validation.Valid;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -70,6 +73,22 @@ public class AuthController {
                 usuario.getEmail(),
                 usuario.getPerfil().name()
             )
+        );
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, String>> credenciaisInvalidas(
+            BadCredentialsException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                Map.of("message", exception.getMessage())
+        );
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, String>> conflito(
+            IllegalStateException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                Map.of("message", exception.getMessage())
         );
     }
 

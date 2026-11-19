@@ -16,6 +16,7 @@ public class UploadLote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String arquivoNome;
     private String status;
     private Integer totalLinhas;
     private Integer linhasValidas;
@@ -32,6 +33,14 @@ public class UploadLote {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getArquivoNome() {
+        return arquivoNome;
+    }
+
+    public void setArquivoNome(String arquivoNome) {
+        this.arquivoNome = arquivoNome;
     }
 
     public void setStatus(String status) {
@@ -64,6 +73,10 @@ public class UploadLote {
 
     public String getMensagem() {
         return mensagem;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setMensagem(String mensagem) {

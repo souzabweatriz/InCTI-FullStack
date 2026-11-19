@@ -32,4 +32,8 @@ public class EstatisticaLote {
     public String getResultado() {
         return resultado;
     }
+
+    public LocalDateTime getCriadoEm() {
+        return criadoEm;
+    }
 }
