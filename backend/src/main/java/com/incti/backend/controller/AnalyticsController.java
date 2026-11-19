@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import tools.jackson.databind.JsonNode;
 import com.incti.backend.dto.EtLoteRequest;
 import com.incti.backend.dto.LoteResponse;
-import com.incti.backend.service.AnalyticsService;
+import com.incti.backend.service.PythonEtlService;
 
 import jakarta.validation.Valid;
 
@@ -19,20 +19,20 @@ import jakarta.validation.Valid;
 @RequestMapping("/analytics")
 public class AnalyticsController {
 
-    private final AnalyticsService analyticsService;
+    private final PythonEtlService pythonEtlService;
 
-    public AnalyticsController(AnalyticsService analyticsService) {
-        this.analyticsService = analyticsService;
+    public AnalyticsController(PythonEtlService pythonEtlService) {
+        this.pythonEtlService = pythonEtlService;
     }
 
     @PostMapping("/lotes")
     public ResponseEntity<LoteResponse> processar(
             @Valid @RequestBody EtLoteRequest request) {
-        return ResponseEntity.ok(analyticsService.processar(request));
+        return ResponseEntity.ok(pythonEtlService.processar(request));
     }
 
     @GetMapping("/dashboard")
     public JsonNode dashboard(@RequestParam Long loteId) {
-        return analyticsService.dashboard(loteId);
+        return pythonEtlService.dashboard(loteId);
     }
 }

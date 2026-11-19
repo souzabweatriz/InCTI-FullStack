@@ -31,13 +31,6 @@ const routes = [
   },
 
   {
-    path: '/perfil',
-    name: 'perfil',
-    component: Perfil,
-    meta: { requiresAuth: true }
-  },
-
-  {
     path: '/upload',
     redirect: { name: 'upload' }
   },
@@ -65,6 +58,12 @@ const routes = [
         path: 'relatorios',
         name: 'relatorios',
         component: Relatorio
+      },
+
+      {
+        path: 'perfil',
+        name: 'perfil',
+        component: Perfil
       }
     ]
   }

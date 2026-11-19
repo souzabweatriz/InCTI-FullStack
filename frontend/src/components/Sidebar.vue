@@ -295,9 +295,9 @@ onUnmounted(() => {
     width: 16rem;
     height: 100vh;
     overflow: hidden;
-    background: #100d12;
-    border-right: 1px solid rgba(199, 58, 104, 0.18);
-    box-shadow: 1rem 0 3rem rgba(26, 12, 22, 0.08);
+    background: #ffffff;
+    border-right: 1px solid #eee6ed;
+    box-shadow: 1rem 0 3rem rgba(91, 48, 72, 0.08);
     box-sizing: border-box;
     transition: width 0.3s ease;
 }
@@ -314,7 +314,7 @@ onUnmounted(() => {
     height: 5rem;
     padding: 0 1rem;
     flex-shrink: 0;
-    border-bottom: 1px solid rgba(199, 58, 104, 0.14);
+    border-bottom: 1px solid #f0e7ec;
     box-sizing: border-box;
 }
 
@@ -360,7 +360,7 @@ onUnmounted(() => {
 
 .brand-info p {
     margin: 0;
-    color: #fff8fb;
+    color: #302536;
     font-size: 0.9375rem;
     font-weight: 700;
     letter-spacing: 0.02em;
@@ -447,7 +447,7 @@ onUnmounted(() => {
     flex-shrink: 0;
     gap: 0.875rem;
     padding: 0 1rem;
-    color: #a89aa7;
+    color: #796b7a;
     background: transparent;
     border: 1px solid transparent;
     border-radius: 0.875rem;
@@ -458,13 +458,13 @@ onUnmounted(() => {
 }
 
 .nav-item:hover {
-    color: #fff8fb;
+    color: #302536;
     background: rgba(199, 58, 104, 0.08);
     border-color: rgba(199, 58, 104, 0.12);
 }
 
 .nav-item.ativo {
-    color: #fff8fb;
+    color: #302536;
     background: linear-gradient(100deg, rgba(199, 58, 104, 0.2), rgba(255, 138, 76, 0.07));
     border-color: rgba(199, 58, 104, 0.25);
     box-shadow: inset 0.1875rem 0 #c73a68;
@@ -530,8 +530,8 @@ onUnmounted(() => {
     width: max-content;
     height: 2.25rem;
     padding: 0 0.875rem;
-    color: #fff8fb;
-    background: #21151e;
+    color: #ffffff;
+    background: #302536;
     border: 1px solid rgba(199, 58, 104, 0.35);
     border-radius: 0.625rem;
     white-space: nowrap;
@@ -574,7 +574,7 @@ onUnmounted(() => {
 
 .sidebar-bottom-label p {
     margin: 0;
-    color: #b5a3b1;
+    color: #796b7a;
     font-size: 0.6875rem;
     line-height: 1.5;
 }
@@ -585,7 +585,7 @@ onUnmounted(() => {
     padding: 0.75rem;
     flex-shrink: 0;
     box-sizing: border-box;
-    border-top: 1px solid rgba(199, 58, 104, 0.15);
+    border-top: 1px solid #f0e7ec;
 }
 
 .profile {
@@ -596,7 +596,7 @@ onUnmounted(() => {
     height: 3.75rem;
     gap: 0.75rem;
     padding: 0 0.625rem;
-    background: rgba(255, 255, 255, 0.025);
+    background: #fffafd;
     border: 1px solid rgba(199, 58, 104, 0.12);
     border-radius: 0.875rem;
     box-sizing: border-box;
@@ -640,7 +640,7 @@ onUnmounted(() => {
     width: 0.625rem;
     height: 0.625rem;
     background: #ffbe55;
-    border: 2px solid #100d12;
+    border: 2px solid #ffffff;
     border-radius: 50%;
 }
 
@@ -655,7 +655,7 @@ onUnmounted(() => {
 .profile-info p {
     margin: 0;
     overflow: hidden;
-    color: #fff8fb;
+    color: #302536;
     font-size: 0.75rem;
     font-weight: 600;
     text-overflow: ellipsis;
@@ -686,9 +686,9 @@ onUnmounted(() => {
         width: calc(100% - 1.5rem);
         height: 4.5rem;
         overflow: visible;
-        border: 1px solid rgba(199, 58, 104, 0.25);
+        border: 1px solid #eee6ed;
         border-radius: 1.25rem;
-        box-shadow: 0 0.5rem 2rem rgba(26, 12, 22, 0.18);
+        box-shadow: 0 0.5rem 2rem rgba(91, 48, 72, 0.14);
     }
 
     .sidebar-header,

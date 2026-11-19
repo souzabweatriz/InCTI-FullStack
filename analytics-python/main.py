@@ -19,10 +19,14 @@ def processar_lote(
     lote_id: int,
     linhas: list[dict],
     recebidas: int,
-) -> bool:
-    """Reserva, transforma, analisa e grava um lote."""
+    arquivo_nome: str = "planilha",
+) -> str | None:
+    """Reserva, transforma, analisa e grava um lote.
+
+    Devolve None em caso de sucesso ou a mensagem de erro.
+    """
     if not reservar_lote(engine, lote_id, so_pendente=True):
-        return False
+        return "O lote não existe ou já foi processado."
 
     try:
         resultado = tratar(pd.DataFrame(linhas))
@@ -37,9 +41,11 @@ def processar_lote(
             estatisticas,
             recebidas,
             len(resultado.rejeitadas),
+            arquivo_nome,
         )
-        return True
+        return None
     except Exception as erro:
         log.exception("Falha ao processar o lote %s.", lote_id)
-        marcar_erro(engine, lote_id, str(erro))
-        return False
+        mensagem = str(erro).splitlines()[0] if str(erro) else type(erro).__name__
+        marcar_erro(engine, lote_id, mensagem)
+        return mensagem

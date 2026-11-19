@@ -42,15 +42,26 @@ def _numero(valor):
     return pd.to_numeric(valor, errors="coerce")
 
 
+def _snake_case(coluna) -> str:
+    """'codigoCliente', 'Codigo_Cliente' e 'Código Cliente' -> 'codigo_cliente'."""
+    texto = _sem_acento(str(coluna).strip())
+    texto = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", texto)
+    texto = re.sub(r"[^A-Za-z0-9]+", "_", texto)
+    return texto.strip("_").lower()
+
+
 def _colunas_para_snake_case(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
-    df.columns = [
-        re.sub(
-            r"(?<!^)(?=[A-Z])", "_", str(coluna)
-        ).lower()
-        for coluna in df.columns
-    ]
+    df.columns = [_snake_case(coluna) for coluna in df.columns]
     return df
+
+
+def _nome_servico(texto: str) -> str:
+    """Capitaliza o serviço sem estragar siglas (BI, ERP, CRM)."""
+    return " ".join(
+        p if p.isupper() and len(p) <= 4 else p.capitalize()
+        for p in texto.split()
+    )
 
 
 def tratar(bruto: pd.DataFrame) -> ResultadoTransformacao:
@@ -128,12 +139,9 @@ def tratar(bruto: pd.DataFrame) -> ResultadoTransformacao:
                 item["consultor"] != consultor_original
             )
 
-        for coluna in ("cidade",):
-            if item.get(coluna):
-                item[coluna] = str(item[coluna]).title()
-
-        if item.get("uf"):
-            item["uf"] = str(item["uf"]).upper()
+        # _texto trata NaN; sem isso, célula vazia vira o texto "Nan".
+        item["cidade"] = _texto(item.get("cidade")).title() or None
+        item["uf"] = _texto(item.get("uf")).upper() or None
 
         segmento = _texto(item.get("segmento"))
         if segmento:
@@ -146,6 +154,12 @@ def tratar(bruto: pd.DataFrame) -> ResultadoTransformacao:
                 segmento_padronizado = "Comércio"
             elif chave in ("servicos", "servico"):
                 segmento_padronizado = "Serviços"
+            elif chave in ("saude",):
+                segmento_padronizado = "Saúde"
+            elif chave in ("educacao",):
+                segmento_padronizado = "Educação"
+            elif chave in ("tecnologia",):
+                segmento_padronizado = "Tecnologia"
             item["segmento"] = segmento_padronizado
             padronizacoes["segmento"] += segmento_padronizado != segmento
 
@@ -156,7 +170,12 @@ def tratar(bruto: pd.DataFrame) -> ResultadoTransformacao:
 
         data = item.get("data_contratacao")
         if data:
-            data_convertida = pd.to_datetime(data, errors="coerce")
+            if isinstance(data, (int, float)) and 1 <= data <= 60000:
+                data_convertida = pd.Timestamp("1899-12-30") + pd.to_timedelta(
+                    data, unit="D"
+                )
+            else:
+                data_convertida = pd.to_datetime(data, errors="coerce")
             item["data_contratacao"] = (
                 data_convertida.date().isoformat()
                 if not pd.isna(data_convertida)
@@ -165,7 +184,8 @@ def tratar(bruto: pd.DataFrame) -> ResultadoTransformacao:
 
         servicos = _texto(item.get("servicos_contratados"))
         item["servicos"] = [
-            s.strip().title() for s in servicos.split(";") if s.strip()
+            _nome_servico(s.strip())
+            for s in re.split(r"[;,|]", servicos) if s.strip()
         ]
         item["qtd_servicos"] = len(item["servicos"])
         item["mes"] = (

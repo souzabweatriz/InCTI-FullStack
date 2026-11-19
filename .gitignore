@@ -49,3 +49,7 @@ desktop.ini
 **/failsafe-reports/
 **/.nyc_output/
 
+
+# Python
+__pycache__/
+*.pyc
