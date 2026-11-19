@@ -1,3 +1,9 @@
+// Aceita VITE_API_URL com ou sem "/api" no fim (as rotas já começam em /auth, /api...)
+const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8080')
+    .trim()
+    .replace(/\/+$/, '')
+    .replace(/\/api$/, '')
+
 const api = async (endpoint, options = {}) => {
     const token = localStorage.getItem('cti_token')
     const headers = new Headers(options.headers || {})
@@ -12,7 +18,7 @@ const api = async (endpoint, options = {}) => {
     }
 
     const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}${endpoint}`,
+        `${BASE_URL}${endpoint}`,
         { ...options, headers }
     )
     const data = await response.json().catch(() => null)

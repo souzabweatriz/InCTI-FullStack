@@ -1,5 +1,6 @@
 package com.incti.backend.config;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +44,7 @@ public class SecurityConfig {
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
                 .requestMatchers(
                     HttpMethod.POST,
                     "/auth/login",
@@ -65,7 +67,12 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of(allowedOrigin));
+        // Aceita uma ou várias origens separadas por vírgula; ignora "/" no fim
+        config.setAllowedOrigins(Arrays.stream(allowedOrigin.split(","))
+            .map(String::trim)
+            .map(origem -> origem.replaceAll("/+$", ""))
+            .filter(origem -> !origem.isEmpty())
+            .toList());
         config.setAllowedMethods(
             List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(
