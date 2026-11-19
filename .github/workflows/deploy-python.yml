@@ -1,0 +1,28 @@
+name: Deploy ETL Python (Azure App Service - Python)
+
+on:
+  push:
+    branches: [main]
+    paths: ["analytics-python/**", ".github/workflows/deploy-python.yml"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    # Só roda depois que a variável estiver configurada no GitHub (Settings → Variables)
+    if: ${{ vars.AZURE_PYTHON_APP != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # A Azure instala o requirements.txt sozinha no deploy
+      # (app setting SCM_DO_BUILD_DURING_DEPLOYMENT=true).
+      - name: Empacotar
+        working-directory: analytics-python
+        run: zip -r ../python.zip . -x ".env" "__pycache__/*" "amostras/*" "testar_conexao.py"
+
+      - name: Publicar
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_PYTHON_APP }}
+          publish-profile: ${{ secrets.AZURE_PYTHON_PUBLISH_PROFILE }}
+          package: python.zip

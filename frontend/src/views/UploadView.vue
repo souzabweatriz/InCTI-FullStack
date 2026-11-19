@@ -456,11 +456,11 @@ async function enviarParaAnalise() {
     background:
         radial-gradient(
             circle at 50% -10%,
-            rgba(187, 222, 198, 0.1),
+            rgba(199, 58, 104, 0.08),
             transparent 34rem
         ),
-        #010300;
-    color: #f7f8fc;
+        transparent;
+    color: #302536;
 }
 
 .upload-section {
@@ -497,12 +497,12 @@ async function enviarParaAnalise() {
     inset: 0;
     background:
         linear-gradient(
-            rgba(255, 255, 255, 0.018) 1px,
+            rgba(48, 37, 54, 0.035) 1px,
             transparent 1px
         ),
         linear-gradient(
             90deg,
-            rgba(255, 255, 255, 0.018) 1px,
+            rgba(48, 37, 54, 0.035) 1px,
             transparent 1px
         );
     background-size: 3rem 3rem;
@@ -521,7 +521,7 @@ async function enviarParaAnalise() {
         radial-gradient(
             circle at center,
             transparent 30%,
-            rgba(0, 0, 0, 0.4)
+            rgba(250, 249, 252, 0.7)
         );
 }
 
@@ -537,7 +537,7 @@ async function enviarParaAnalise() {
     height: 26rem;
     top: -13rem;
     left: -10rem;
-    background: rgba(187, 222, 198, 0.12);
+    background: rgba(199, 58, 104, 0.1);
     animation: float-one 12s ease-in-out infinite;
 }
 
@@ -546,7 +546,7 @@ async function enviarParaAnalise() {
     height: 23rem;
     top: 25%;
     right: -12rem;
-    background: rgba(90, 127, 120, 0.13);
+    background: rgba(255, 138, 76, 0.1);
     animation: float-two 15s ease-in-out infinite;
 }
 
@@ -555,7 +555,7 @@ async function enviarParaAnalise() {
     height: 20rem;
     bottom: -12rem;
     left: 35%;
-    background: rgba(49, 76, 83, 0.18);
+    background: rgba(255, 190, 85, 0.12);
     animation: float-three 18s ease-in-out infinite;
 }
 
@@ -584,10 +584,10 @@ async function enviarParaAnalise() {
     gap: 0.5rem;
     margin-bottom: 1.25rem;
     padding: 0.55rem 1rem;
-    border: 1px solid rgba(90, 127, 120, 0.4);
+    border: 1px solid rgba(199, 58, 104, 0.2);
     border-radius: 999rem;
-    background: rgba(49, 76, 83, 0.2);
-    color: #bbdec6;
+    background: #f9e5ed;
+    color: #c73a68;
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -605,9 +605,9 @@ async function enviarParaAnalise() {
     background:
         linear-gradient(
             120deg,
-            #f7f8fc 10%,
-            #bbdec6 52%,
-            #5a7f78 100%
+            #302536 10%,
+            #c73a68 52%,
+            #ff8a4c 100%
         );
     background-size: 200% 200%;
     -webkit-background-clip: text;
@@ -620,7 +620,7 @@ async function enviarParaAnalise() {
     width: 100%;
     max-width: 40rem;
     margin: 1.25rem 0 0;
-    color: rgba(187, 222, 198, 0.6);
+    color: #857b85;
     font-size: 1rem;
     line-height: 1.8;
 }
@@ -636,11 +636,11 @@ async function enviarParaAnalise() {
 .glass-panel {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(90, 127, 120, 0.25);
+    border: 1px solid #eee5ea;
     border-radius: 1.75rem;
-    background: rgba(10, 17, 13, 0.82);
+    background: rgba(255, 255, 255, 0.94);
     box-shadow:
-        0 2rem 5rem rgba(0, 0, 0, 0.3),
+        0 2rem 5rem rgba(48, 37, 54, 0.07),
         inset 0 1px 0 rgba(255, 255, 255, 0.025);
     backdrop-filter: blur(1.25rem);
 }
@@ -665,15 +665,15 @@ async function enviarParaAnalise() {
     justify-content: center;
     padding: 3rem 1.5rem;
     overflow: hidden;
-    border: 2px dashed rgba(90, 127, 120, 0.3);
+    border: 2px dashed rgba(199, 58, 104, 0.22);
     border-radius: 1.4rem;
     background:
         radial-gradient(
             circle at 50% 10%,
-            rgba(187, 222, 198, 0.07),
+            rgba(199, 58, 104, 0.05),
             transparent 42%
         ),
-        rgba(49, 76, 83, 0.08);
+        #fffafc;
     text-align: center;
     cursor: pointer;
     transition:
@@ -691,7 +691,7 @@ async function enviarParaAnalise() {
         linear-gradient(
             110deg,
             transparent 25%,
-            rgba(187, 222, 198, 0.045) 50%,
+            rgba(199, 58, 104, 0.05) 50%,
             transparent 75%
         );
     transform: translateX(-100%);
@@ -704,32 +704,32 @@ async function enviarParaAnalise() {
 }
 
 .dropzone:hover {
-    border-color: rgba(187, 222, 198, 0.5);
+    border-color: rgba(199, 58, 104, 0.55);
     background:
         radial-gradient(
             circle at 50% 10%,
-            rgba(187, 222, 198, 0.09),
+            rgba(199, 58, 104, 0.07),
             transparent 45%
         ),
-        rgba(49, 76, 83, 0.12);
+        #fff5f9;
     box-shadow:
-        0 0 0 1px rgba(187, 222, 198, 0.04),
-        0 1.5rem 4rem rgba(0, 0, 0, 0.2);
+        0 0 0 1px rgba(199, 58, 104, 0.06),
+        0 1.5rem 4rem rgba(199, 58, 104, 0.12);
     transform: translateY(-0.1rem);
 }
 
 .dropzone.is-dragging {
-    border-color: #bbdec6;
+    border-color: #c73a68;
     background:
         radial-gradient(
             circle at center,
-            rgba(187, 222, 198, 0.13),
+            rgba(199, 58, 104, 0.1),
             transparent 55%
         ),
-        rgba(49, 76, 83, 0.2);
+        #f9e5ed;
     box-shadow:
-        0 0 0 1px rgba(187, 222, 198, 0.1),
-        0 0 3rem rgba(187, 222, 198, 0.06);
+        0 0 0 1px rgba(199, 58, 104, 0.08),
+        0 0 3rem rgba(199, 58, 104, 0.1);
     transform: scale(1.01);
 }
 
@@ -744,12 +744,12 @@ async function enviarParaAnalise() {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(187, 222, 198, 0.2);
+    border: 1px solid rgba(199, 58, 104, 0.2);
     border-radius: 1.5rem;
-    background: rgba(187, 222, 198, 0.08);
-    color: #bbdec6;
+    background: #f9e5ed;
+    color: #c73a68;
     box-shadow:
-        0 1rem 2.5rem rgba(0, 0, 0, 0.2),
+        0 1rem 2.5rem rgba(199, 58, 104, 0.12),
         inset 0 1px 0 rgba(255, 255, 255, 0.03);
     animation: icon-float 4s ease-in-out infinite;
 }
@@ -761,7 +761,7 @@ async function enviarParaAnalise() {
 
 .dropzone h2 {
     margin: 1.75rem 0 0;
-    color: #f7f8fc;
+    color: #302536;
     font-size: 1.25rem;
     line-height: 1.4;
     font-weight: 650;
@@ -771,7 +771,7 @@ async function enviarParaAnalise() {
     width: 100%;
     max-width: 28rem;
     margin: 0.75rem 0 0;
-    color: rgba(187, 222, 198, 0.55);
+    color: #857b85;
     font-size: 0.9rem;
     line-height: 1.75;
 }
@@ -787,10 +787,10 @@ async function enviarParaAnalise() {
 
 .file-types span {
     padding: 0.4rem 0.8rem;
-    border: 1px solid rgba(90, 127, 120, 0.3);
+    border: 1px solid rgba(199, 58, 104, 0.22);
     border-radius: 999rem;
-    background: rgba(49, 76, 83, 0.2);
-    color: rgba(187, 222, 198, 0.7);
+    background: #f9e5ed;
+    color: #6e3d53;
     font-size: 0.68rem;
     font-weight: 600;
 }
@@ -806,12 +806,12 @@ async function enviarParaAnalise() {
     margin-top: 2rem;
     padding: 0.75rem 1.5rem;
     border-radius: 0.75rem;
-    background: #bbdec6;
-    color: #010300;
+    background: linear-gradient(120deg, #c73a68, #ff8a4c);
+    color: #ffffff;
     font-size: 0.9rem;
     font-weight: 700;
     box-shadow:
-        0 0.75rem 2rem rgba(187, 222, 198, 0.08),
+        0 0.75rem 2rem rgba(199, 58, 104, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
     transition:
         background 0.25s ease,
@@ -820,7 +820,7 @@ async function enviarParaAnalise() {
 }
 
 .select-button:hover {
-    background: #f7f8fc;
+    background: linear-gradient(120deg, #b43b68, #ff7a36);
 }
 
 .select-button.disabled {
@@ -840,9 +840,9 @@ async function enviarParaAnalise() {
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    border: 1px solid rgba(90, 127, 120, 0.25);
+    border: 1px solid #eee5ea;
     border-radius: 1rem;
-    background: rgba(49, 76, 83, 0.1);
+    background: #fff5f9;
 }
 
 .file-details {
@@ -860,8 +860,8 @@ async function enviarParaAnalise() {
     align-items: center;
     justify-content: center;
     border-radius: 0.75rem;
-    background: rgba(187, 222, 198, 0.08);
-    color: #bbdec6;
+    background: #f9e5ed;
+    color: #c73a68;
 }
 
 .file-icon svg {
@@ -879,7 +879,7 @@ async function enviarParaAnalise() {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: #f7f8fc;
+    color: #302536;
     font-size: 0.875rem;
     font-weight: 650;
 }
@@ -887,25 +887,25 @@ async function enviarParaAnalise() {
 .file-text span {
     display: block;
     margin-top: 0.25rem;
-    color: rgba(187, 222, 198, 0.45);
+    color: #857b85;
     font-size: 0.75rem;
 }
 
 .change-button {
     flex-shrink: 0;
     padding: 0.6rem 1rem;
-    border: 1px solid rgba(90, 127, 120, 0.3);
+    border: 1px solid rgba(199, 58, 104, 0.22);
     border-radius: 0.6rem;
     background: transparent;
-    color: #bbdec6;
+    color: #c73a68;
     font-size: 0.75rem;
     font-weight: 650;
     cursor: pointer;
 }
 
 .change-button:hover {
-    border-color: rgba(187, 222, 198, 0.5);
-    background: rgba(187, 222, 198, 0.07);
+    border-color: rgba(199, 58, 104, 0.55);
+    background: rgba(199, 58, 104, 0.05);
 }
 
 .error-message {
@@ -915,21 +915,21 @@ async function enviarParaAnalise() {
     display: flex;
     align-items: flex-start;
     gap: 0.75rem;
-    border: 1px solid rgba(248, 113, 113, 0.2);
+    border: 1px solid rgba(199, 58, 104, 0.25);
     border-radius: 1rem;
-    background: rgba(248, 113, 113, 0.05);
+    background: #fff5f9;
 }
 
 .error-message svg {
     width: 1.25rem;
     height: 1.25rem;
     flex-shrink: 0;
-    color: #fca5a5;
+    color: #c73a68;
 }
 
 .error-message p {
     margin: 0;
-    color: #fecaca;
+    color: #a73360;
     font-size: 0.875rem;
     line-height: 1.6;
 }
@@ -941,7 +941,7 @@ async function enviarParaAnalise() {
     margin-top: 1.25rem;
     overflow: hidden;
     border-radius: 999rem;
-    background: rgba(49, 76, 83, 0.4);
+    background: #f3edf1;
 }
 
 .progress-bar {
@@ -951,10 +951,10 @@ async function enviarParaAnalise() {
     background: linear-gradient(
         90deg,
         transparent,
-        #bbdec6,
+        #c73a68,
         transparent
     );
-    box-shadow: 0 0 1rem rgba(187, 222, 198, 0.35);
+    box-shadow: 0 0 1rem rgba(199, 58, 104, 0.3);
     animation: progress-sweep 1.5s ease-in-out infinite;
 }
 
@@ -976,7 +976,7 @@ async function enviarParaAnalise() {
 
 .eyebrow {
     display: block;
-    color: #5a7f78;
+    color: #c73a68;
     font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -985,7 +985,7 @@ async function enviarParaAnalise() {
 
 .summary-header h3 {
     margin: 0.5rem 0 0;
-    color: #f7f8fc;
+    color: #302536;
     font-size: 1.15rem;
     font-weight: 650;
 }
@@ -997,8 +997,8 @@ async function enviarParaAnalise() {
     align-items: center;
     justify-content: center;
     border-radius: 0.75rem;
-    background: rgba(187, 222, 198, 0.08);
-    color: #bbdec6;
+    background: #f9e5ed;
+    color: #c73a68;
 }
 
 .summary-icon svg {
@@ -1019,9 +1019,9 @@ async function enviarParaAnalise() {
     overflow: hidden;
     width: 100%;
     padding: 1.25rem;
-    border: 1px solid rgba(90, 127, 120, 0.2);
+    border: 1px solid #eee5ea;
     border-radius: 1rem;
-    background: rgba(49, 76, 83, 0.1);
+    background: #fff5f9;
     transition:
         transform 0.3s ease,
         border-color 0.3s ease,
@@ -1030,33 +1030,33 @@ async function enviarParaAnalise() {
 
 .stat-card:hover {
     transform: translateY(-0.25rem);
-    border-color: rgba(187, 222, 198, 0.25);
-    background: rgba(49, 76, 83, 0.16);
+    border-color: rgba(199, 58, 104, 0.3);
+    background: #f9e5ed;
 }
 
 .stat-card p {
     margin: 0;
-    color: rgba(187, 222, 198, 0.45);
+    color: #857b85;
     font-size: 0.75rem;
 }
 
 .stat-card strong {
     display: block;
     margin-top: 0.4rem;
-    color: #bbdec6;
+    color: #c73a68;
     font-size: 2.25rem;
     line-height: 1;
     font-weight: 650;
 }
 
 .stat-card:nth-child(2) strong {
-    color: #f7f8fc;
+    color: #302536;
 }
 
 .stat-card span {
     display: block;
     margin-top: 0.45rem;
-    color: rgba(187, 222, 198, 0.35);
+    color: rgba(199, 58, 104, 0.3);
     font-size: 0.7rem;
 }
 
@@ -1068,18 +1068,18 @@ async function enviarParaAnalise() {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border: 1px solid rgba(252, 165, 165, 0.2);
+    border: 1px solid rgba(199, 58, 104, 0.25);
     border-radius: 0.75rem;
-    background: rgba(248, 113, 113, 0.05);
-    color: #fecaca;
+    background: #fff5f9;
+    color: #a73360;
     font-size: 0.8rem;
     font-weight: 650;
     cursor: pointer;
 }
 
 .clear-button:hover {
-    border-color: rgba(252, 165, 165, 0.35);
-    background: rgba(248, 113, 113, 0.1);
+    border-color: rgba(199, 58, 104, 0.45);
+    background: #f9e5ed;
 }
 
 .clear-button svg {
@@ -1107,14 +1107,14 @@ async function enviarParaAnalise() {
 
 .analysis-action p {
     margin: 0;
-    color: #a4aaa8;
+    color: #857b85;
 }
 
 .send-button {
     border: 0;
     border-radius: .75rem;
-    background: #ffbe55;
-    color: #17110a;
+    background: linear-gradient(120deg, #c73a68, #ff8a4c);
+    color: #ffffff;
     cursor: pointer;
     font-weight: 700;
     padding: .85rem 1.1rem;
@@ -1127,7 +1127,7 @@ async function enviarParaAnalise() {
 }
 
 .send-error {
-    color: #ff8a8a !important;
+    color: #c73a68 !important;
     margin-top: .5rem !important;
 }
 
@@ -1145,7 +1145,7 @@ async function enviarParaAnalise() {
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    border-bottom: 1px solid rgba(90, 127, 120, 0.2);
+    border-bottom: 1px solid #eee5ea;
 }
 
 .preview-title {
@@ -1156,24 +1156,24 @@ async function enviarParaAnalise() {
 
 .preview-title h2 {
     margin: 0;
-    color: #f7f8fc;
+    color: #302536;
     font-size: 1.1rem;
     font-weight: 650;
 }
 
 .preview-header p {
     margin: 0.5rem 0 0;
-    color: rgba(187, 222, 198, 0.45);
+    color: #857b85;
     font-size: 0.8rem;
 }
 
 .column-badge {
     flex-shrink: 0;
     padding: 0.6rem 1rem;
-    border: 1px solid rgba(90, 127, 120, 0.3);
+    border: 1px solid rgba(199, 58, 104, 0.22);
     border-radius: 999rem;
-    background: rgba(49, 76, 83, 0.2);
-    color: #bbdec6;
+    background: #f9e5ed;
+    color: #c73a68;
     font-size: 0.75rem;
     font-weight: 650;
 }
@@ -1182,7 +1182,7 @@ async function enviarParaAnalise() {
     width: 100%;
     overflow-x: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(187, 222, 198, 0.35) transparent;
+    scrollbar-color: rgba(199, 58, 104, 0.3) transparent;
 }
 
 .table-wrapper::-webkit-scrollbar {
@@ -1195,7 +1195,7 @@ async function enviarParaAnalise() {
 }
 
 .table-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(187, 222, 198, 0.28);
+    background: rgba(199, 58, 104, 0.3);
     border-radius: 999rem;
 }
 
@@ -1207,13 +1207,13 @@ table {
 }
 
 thead {
-    background: rgba(49, 76, 83, 0.15);
+    background: #fff5f9;
 }
 
 th {
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid rgba(90, 127, 120, 0.2);
-    color: #5a7f78;
+    border-bottom: 1px solid #eee5ea;
+    color: #c73a68;
     font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 0.15em;
@@ -1224,8 +1224,8 @@ th {
 
 td {
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid rgba(90, 127, 120, 0.1);
-    color: rgba(187, 222, 198, 0.65);
+    border-bottom: 1px solid #f5eff3;
+    color: #403640;
     white-space: nowrap;
 }
 
@@ -1234,11 +1234,11 @@ tbody tr {
 }
 
 tbody tr:hover {
-    background: rgba(187, 222, 198, 0.035);
+    background: #fff5f9;
 }
 
 tbody tr:hover td {
-    color: rgba(187, 222, 198, 0.85);
+    color: #302536;
 }
 
 .reveal {
@@ -1253,7 +1253,7 @@ tbody tr:hover td {
     flex-shrink: 0;
     display: inline-block;
     border-radius: 50%;
-    background: #bbdec6;
+    background: #c73a68;
     animation: pulse-dot 2.2s ease-out infinite;
 }
 
@@ -1303,15 +1303,15 @@ tbody tr:hover td {
 
 @keyframes pulse-dot {
     0% {
-        box-shadow: 0 0 0 0 rgba(187, 222, 198, 0.35);
+        box-shadow: 0 0 0 0 rgba(199, 58, 104, 0.3);
     }
 
     70% {
-        box-shadow: 0 0 0 0.45rem rgba(187, 222, 198, 0);
+        box-shadow: 0 0 0 0.45rem rgba(199, 58, 104, 0);
     }
 
     100% {
-        box-shadow: 0 0 0 0 rgba(187, 222, 198, 0);
+        box-shadow: 0 0 0 0 rgba(199, 58, 104, 0);
     }
 }
 
