@@ -43,7 +43,8 @@ public class PythonEtlService {
         this.loteRepository = loteRepository;
         this.estatisticaRepository = estatisticaRepository;
         this.objectMapper = objectMapper;
-        this.pythonUrl = pythonUrl.replaceAll("/$", "");
+        // Aceita tanto ".../azurewebsites.net" quanto ".../azurewebsites.net/etl"
+        this.pythonUrl = pythonUrl.trim().replaceAll("/+$", "").replaceAll("/etl$", "");
         this.pythonKey = pythonKey;
         this.httpClient = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
