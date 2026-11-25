@@ -11,6 +11,7 @@ on:
     paths:
       - 'backend/**'
       - '.github/workflows/main_cti-api-ana.yml'
+  # workflow_dispatch: rodar de novo pela aba Actions -> Run workflow
   workflow_dispatch:
 
 jobs:
