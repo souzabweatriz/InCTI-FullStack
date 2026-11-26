@@ -1,359 +1,155 @@
-<div align="center">
+# CTI Insights (InCTI)
 
-# InCTI
+Plataforma web que transforma planilhas de clientes de consultoria em indicadores estatísticos e dashboards.
 
-### Plataforma de inteligência de dados para consultores
+O consultor faz login, envia uma planilha `.xlsx`/`.xls`/`.csv`, o sistema limpa e padroniza os dados, calcula estatísticas (média, mediana, desvio padrão, quartis, correlação etc.) e mostra o resultado em gráficos e relatórios.
 
-Aplicação web com frontend em Vue 3 e backend em Spring Boot, integrada ao PostgreSQL Flexible Server hospedado no Azure.
+## Camadas do projeto
 
-</div>
+| Pasta | Camada | Tecnologia | Papel | Documentação |
+|---|---|---|---|---|
+| [`frontend/`](frontend/) | Interface | Vue 3 + Vite | Telas, leitura e pré-validação da planilha, dashboards | [frontend/README.md](frontend/README.md) |
+| [`backend/`](backend/) | API principal | Java 21 + Spring Boot | Autenticação (JWT), validação no servidor, orquestração do ETL, leitura dos resultados | [backend/README.md](backend/README.md) |
+| [`analytics-python/`](analytics-python/) | Ciência de dados | Python + FastAPI + pandas | Limpeza, padronização, estatísticas, insights e gravação dos dados analíticos | [analytics-python/README.md](analytics-python/README.md) |
 
-## Sobre o projeto
+Arquivos na raiz:
 
-O InCTI permite importar planilhas de dados e visualizar uma prévia tratada para apoiar análises de clientes, serviços, contratos, insights e telemetrias.
+- [`iniciar.ps1`](iniciar.ps1): sobe Python, backend e frontend localmente, cada um em uma janela.
 
-O projeto é dividido em duas aplicações:
+## Arquitetura
 
-- **Frontend:** interface em Vue 3, Vue Router, Pinia, Vite e Tailwind CSS.
-- **Backend:** API REST em Spring Boot com Spring Data JPA, validação e PostgreSQL.
+O frontend fala **somente** com o backend Java. O backend é o único que chama o serviço Python. Java e Python acessam o mesmo banco PostgreSQL, cada um com sua responsabilidade.
 
-## Tecnologias
+```mermaid
+flowchart LR
+    U([Consultor no navegador])
+    subgraph Vercel
+        F[Frontend<br/>Vue 3 + Vite]
+    end
+    subgraph Azure App Service
+        B[Backend<br/>Spring Boot :8080]
+        P[Analytics<br/>FastAPI :8000]
+    end
+    DB[(PostgreSQL<br/>Azure Flexible Server)]
 
-### Frontend
-
-- Vue 3
-- Vue Router
-- Pinia
-- Vite
-- Tailwind CSS
-- PrimeVue e PrimeIcons
-- SheetJS (`xlsx`) para leitura de `.xlsx`, `.xls` e `.csv`
-
-### Backend
-
-- Java 21
-- Spring Boot 4.1.1
-- Spring Web MVC
-- Spring Data JPA / Hibernate
-- Bean Validation
-- PostgreSQL JDBC Driver
-- Maven Wrapper
-
-### Infraestrutura
-
-- Azure Database for PostgreSQL Flexible Server
-- DBeaver para administração e consulta do banco
-
-## Pré-requisitos
-
-Instale:
-
-- Java 21 ou superior
-- Node.js e npm
-- PostgreSQL ou acesso ao servidor PostgreSQL do Azure
-- DBeaver, opcional, para consultar o banco
-
-Confirme as versões:
-
-```bash
-java -version
-node --version
-npm --version
+    U --> F
+    F -- "HTTPS + JWT<br/>/auth, /analytics, /api" --> B
+    B -- "POST /etl<br/>header X-ETL-Key" --> P
+    B -- "JPA: usuarios, upload_lote<br/>leitura de estatistica_lote" --> DB
+    P -- "SQLAlchemy: cliente, contrato,<br/>estatistica_lote, status do lote" --> DB
 ```
 
-## Estrutura do projeto
+### Fluxo de um upload
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor C as Consultor
+    participant F as Frontend
+    participant B as Backend Java
+    participant P as Python ETL
+    participant DB as PostgreSQL
+
+    C->>F: escolhe a planilha
+    F->>F: lê o .xlsx (SheetJS) e valida as linhas
+    F->>B: POST /analytics/lotes (JWT + linhas válidas)
+    B->>DB: cria upload_lote (AGUARDANDO_ETL)
+    B->>P: POST /etl (loteId + linhas, X-ETL-Key)
+    P->>DB: reserva o lote (PROCESSANDO)
+    P->>P: limpeza → estatísticas → insights
+    P->>DB: grava cliente, contrato, estatistica_lote e marca PROCESSADO
+    P-->>B: 200 { ok, loteId }
+    B-->>F: 200 { loteId, status: PROCESSADO }
+    F->>B: GET /api/dashboard?loteId=...
+    B->>DB: lê estatistica_lote
+    B-->>F: estatísticas em JSON
+    F-->>C: dashboards e relatórios
+```
+
+### Quem grava o quê no banco
+
+| Tabela | Escrita por | Conteúdo |
+|---|---|---|
+| `usuarios` | Backend | contas (senha com hash BCrypt) e perfil `USUARIO`/`ADMIN` |
+| `upload_lote` | Backend cria; Python atualiza o status | controle de cada envio: arquivo, contagens, status, mensagem |
+| `cliente`, `contrato` | Python | dados tratados de cada lote |
+| `estatistica_lote` | Python | resultado completo da análise em JSON (`jsonb`) |
+
+As tabelas são criadas pelo Hibernate (`spring.jpa.hibernate.ddl-auto=update`) quando o backend sobe pela primeira vez. Por isso o backend precisa ter subido ao menos uma vez antes do primeiro upload.
+
+## URLs de produção
+
+| Serviço | URL |
+|---|---|
+| Frontend (Vercel) | https://in-cti-full-stack.vercel.app |
+| Backend | https://cti-api-incti.azurewebsites.net (health: [`/api/health`](https://cti-api-incti.azurewebsites.net/api/health)) |
+| Python | https://cti-etl-incti.azurewebsites.net (health: [`/saude`](https://cti-etl-incti.azurewebsites.net/saude), docs: [`/docs`](https://cti-etl-incti.azurewebsites.net/docs)) |
+
+> Os serviços estão no plano gratuito (F1) da Azure. Se ficarem muito tempo sem uso, a primeira requisição pode demorar enquanto o app "acorda".
+
+## Como rodar localmente
+
+### Pré-requisitos
+
+- PostgreSQL acessível (local na porta 5432 ou o servidor da Azure)
+- Python 3.12+
+- Java 21+ (o Maven Wrapper já vem no projeto)
+- Node.js 20+ e npm
+
+### Ordem de execução
+
+Suba nesta ordem, cada um em um terminal:
+
+1. **Banco de dados**: garanta que o PostgreSQL está no ar.
+2. **Python** (porta 8000):
+   ```bash
+   cd analytics-python
+   python -m venv .venv
+   .venv\Scripts\activate        # Linux/macOS: source .venv/bin/activate
+   pip install -r requirements.txt
+   copy .env.example .env        # Linux/macOS: cp .env.example .env  → preencha
+   python -m uvicorn api:app --reload --port 8000
+   ```
+3. **Backend** (porta 8080):
+   ```bash
+   cd backend
+   .\mvnw.cmd spring-boot:run    # Linux/macOS: ./mvnw spring-boot:run
+   ```
+   Com o banco da Azure, use `.\run-local.ps1`, que define as variáveis e pede a senha.
+4. **Frontend** (porta 5173):
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+Abra http://localhost:5173.
+
+No Windows, depois de instalar as dependências uma vez, o atalho `.\iniciar.ps1` (na raiz) abre os três serviços na ordem certa.
+
+### Variáveis de ambiente (resumo)
+
+| Variável | Onde | Para quê |
+|---|---|---|
+| `DB_URL` ou `DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_SSLMODE` | backend | conexão com o PostgreSQL |
+| `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_SSLMODE` | python | conexão com o PostgreSQL |
+| `DB_USER`, `DB_PASSWORD` | ambos | credenciais do banco |
+| `JWT_SECRET` | backend | assinatura dos tokens |
+| `CORS_ORIGINS` | backend | origens do frontend permitidas (separadas por vírgula) |
+| `ETL_URL` | backend | endereço do serviço Python |
+| `ETL_KEY` (backend) = `ETL_API_KEY` (python) | ambos | chave compartilhada; se forem diferentes, o Python responde 401 |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | backend | cria o usuário administrador na primeira subida |
+| `VITE_API_URL` | frontend | URL do backend |
+
+Os detalhes de cada variável estão no README de cada camada. Senhas e chaves ficam em `.env` (ignorado pelo Git) ou nas configurações da Azure/Vercel, nunca no código.
+
+## Estrutura do repositório
 
 ```text
 InCTI/
-├── backend/
-│   ├── src/main/java/com/incti/backend/
-│   │   ├── controller/    # Endpoints HTTP
-│   │   ├── model/         # Entidades JPA
-│   │   ├── repository/    # Acesso ao banco
-│   │   └── service/       # Regras de negócio
-│   ├── src/main/resources/
-│   │   └── application.properties
-│   ├── pom.xml
-│   └── mvnw.cmd
-├── frontend/
-│   ├── src/
-│   │   ├── components/    # Header, Sidebar e Footer
-│   │   ├── router/        # Rotas do Vue Router
-│   │   ├── stores/        # Estado global com Pinia
-│   │   ├── services/      # Comunicação com a API
-│   │   └── views/         # Telas da aplicação
-│   ├── package.json
-│   └── vite.config.js
-└── README.md
+├── analytics-python/      # ETL e estatísticas (FastAPI)
+├── backend/               # API REST (Spring Boot)
+├── frontend/              # SPA (Vue 3)
+├── iniciar.ps1            # sobe tudo localmente
+└── README.md              # este arquivo
 ```
-
-## Configuração do banco
-
-O backend usa PostgreSQL. Crie ou edite localmente o arquivo:
-
-```text
-backend/src/main/resources/application.properties
-```
-
-Exemplo para o Azure PostgreSQL Flexible Server:
-
-```properties
-spring.application.name=backend
-
-spring.datasource.url=jdbc:postgresql://SEU_SERVIDOR.postgres.database.azure.com:5432/postgres?sslmode=require
-spring.datasource.username=SEU_USUARIO
-spring.datasource.password=SUA_SENHA
-
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-```
-
-Não publique senhas, tokens ou chaves no repositório. O `application.properties` está no `.gitignore` raiz para evitar o versionamento de credenciais locais.
-
-No Azure, antes de iniciar a aplicação:
-
-1. Acesse o servidor PostgreSQL.
-2. Abra **Rede**.
-3. Habilite o acesso público, se necessário.
-4. Adicione o IP atual do computador nas regras de firewall.
-5. Salve e aguarde o servidor voltar ao estado **Ready**.
-6. Use SSL com modo `require` no DBeaver.
-
-## Executando o backend
-
-No Windows:
-
-```powershell
-cd backend
-.\mvnw.cmd spring-boot:run
-```
-
-No Linux ou macOS:
-
-```bash
-cd backend
-./mvnw spring-boot:run
-```
-
-A API ficará disponível em:
-
-```text
-http://localhost:8080
-```
-
-Para apenas compilar:
-
-```powershell
-.\mvnw.cmd -DskipTests compile
-```
-
-## Executando o frontend
-
-Em outro terminal:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-O Vite exibirá o endereço local, normalmente:
-
-```text
-http://localhost:5173
-```
-
-Para gerar a versão de produção:
-
-```bash
-npm run build
-```
-
-## Rotas do frontend
-
-| Rota | Tela |
-|---|---|
-| `/` | Página inicial |
-| `/login` | Login |
-| `/dashboard/upload` | Upload e prévia da planilha |
-| `/dashboard/relatorios` | Relatórios |
-| `/dashboard` | Redireciona para o upload |
-
-## API de consultores
-
-Base local:
-
-```text
-http://localhost:8080/consultores
-```
-
-### Listar consultores
-
-```http
-GET /consultores
-```
-
-### Buscar consultor por ID
-
-```http
-GET /consultores/{id}
-```
-
-### Criar consultor
-
-```http
-POST /consultores
-Content-Type: application/json
-```
-
-```json
-{
-	"nome": "Ana Beatriz",
-	"matricula": "12345",
-	"email": "ana@example.com",
-	"senha": "senha-segura"
-}
-```
-
-### Fazer login
-
-```http
-POST /consultores/login
-Content-Type: application/json
-```
-
-```json
-{
-	"email": "ana@example.com",
-	"senha": "senha-segura"
-}
-```
-
-### Atualizar consultor
-
-```http
-PUT /consultores/{id}
-Content-Type: application/json
-```
-
-```json
-{
-	"nome": "Ana Beatriz Atualizada",
-	"matricula": "12345",
-	"email": "ana@example.com",
-	"senha": "nova-senha"
-}
-```
-
-### Excluir consultor
-
-```http
-DELETE /consultores/{id}
-```
-
-## Entidades do banco
-
-As entidades JPA atuais são:
-
-- `consultores`
-- `clientes`
-- `contratos`
-- `insights`
-- `servicos`
-- `telemetrias`
-
-Com `spring.jpa.hibernate.ddl-auto=update`, o Hibernate cria ou atualiza a estrutura das tabelas ao iniciar o backend. Em produção, prefira migrations versionadas para controlar alterações de schema.
-
-## Upload de planilhas
-
-Na tela `/dashboard/upload`, o frontend aceita:
-
-- `.xlsx`
-- `.xls`
-- `.csv`
-
-O arquivo é lido no navegador pela biblioteca SheetJS. A aplicação:
-
-1. Valida a extensão.
-2. Lê a primeira aba da planilha.
-3. Remove espaços extras de valores textuais.
-4. Padroniza alguns valores de `segmento`.
-5. Exibe linhas, colunas e uma prévia dos dados tratados.
-
-Atualmente, a leitura da planilha não envia os dados para a API automaticamente.
-
-## Arquitetura do backend
-
-O fluxo de uma requisição é:
-
-```text
-Cliente HTTP
-		↓
-Controller  → recebe a requisição e devolve a resposta
-		↓
-Service    → aplica regras de negócio
-		↓
-Repository → acessa o PostgreSQL via Spring Data JPA
-		↓
-Banco de dados
-```
-
-Essa separação mantém HTTP, regras de negócio e persistência organizados em responsabilidades diferentes.
-
-## Testes manuais
-
-Você pode testar a API usando Thunder Client, Postman ou Insomnia.
-
-Para requisições `POST` e `PUT`, envie o header:
-
-```text
-Content-Type: application/json
-```
-
-Verifique os registros no DBeaver em:
-
-```text
-public → Tables → consultores → View Data
-```
-
-Consulta de exemplo:
-
-```sql
-SELECT id, nome, matricula, email
-FROM public.consultores
-ORDER BY id;
-```
-
-## Solução de problemas
-
-### `Read timed out` no PostgreSQL
-
-Confirme se:
-
-- O servidor Azure está com estado **Ready**.
-- O endpoint está correto.
-- A porta é `5432`.
-- O IP atual está liberado no firewall da Azure.
-- O SSL está configurado como `require`.
-- A rede atual não está bloqueando conexões PostgreSQL.
-
-### `401 Unauthorized` no login
-
-Confirme se o e-mail existe e se a senha enviada corresponde ao cadastro.
-
-### `404 Not Found`
-
-Confira o caminho da requisição. Por exemplo, use `/consultores` no plural.
-
-### `415 Unsupported Media Type`
-
-Adicione `Content-Type: application/json` em requisições que enviam JSON.
-
-## Segurança
-
-- Não versione senhas reais.
-- Não use `AllowAll` no firewall em produção.
-- Troque senhas que tenham sido expostas.
-- Para produção, use variáveis de ambiente ou um serviço de secrets.
-- Evite armazenar senhas em texto puro; use hash com BCrypt antes de disponibilizar o login em produção.
